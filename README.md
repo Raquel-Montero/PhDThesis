@@ -6,6 +6,7 @@
 ```mermaid
 graph TD;
     A[Repository] -->B[Thesis];
+    B[Thesis] -->B1[pdf];
     A[Repository]-->C[Data Analysis];
     C[Data Analysis] --> D[Chapter 4];
     D[Chapter 4] --> D1[R Code];
