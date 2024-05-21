@@ -6,5 +6,6 @@
 ```mermaid
 graph TD;
     Main Repository-->Thesis;
-    A-->Data Analysis;
+    Main Repository-->Data Analysis;
+    
 ```
