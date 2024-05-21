@@ -16,5 +16,5 @@ graph TD;
     C[Data Analysis] --> F[Chapter 6];
     F[Chapter 6] --> F1[R Code];
 style B fill:#b2d8d8, stroke:#75b0b2
-style B1 fill:#90bdbf, stroke:#75b0b2
+style B1 fill:#b2d8d8, stroke:#75b0b2
 ```
