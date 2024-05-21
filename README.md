@@ -1,3 +1,4 @@
-<img src='AuxiliaryFiles/PhD_Thesis.png' alt="banner"></img>
+<p style="text-align: center;">PhD Thesis</p>
+
 
 - Here comes the description.
