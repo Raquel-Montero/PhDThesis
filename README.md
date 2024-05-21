@@ -4,13 +4,10 @@
 - Here comes the description.
 - ${\color{lightblue}Thesis}$
 ```mermaid
----
-caption: An example flowchart
----
 graph TD;
-    A[Repository] -->B[Thesis];
+    A(Repository) -->B[Thesis];
     B[Thesis] -->B1[pdf];
-    A[Repository]-->C[Data Analysis];
+    A(Repository)-->C[Data Analysis];
     C[Data Analysis] --> D[Chapter 4];
     D[Chapter 4] --> D1[R Code];
     C[Data Analysis] --> E[Chapter 5];
