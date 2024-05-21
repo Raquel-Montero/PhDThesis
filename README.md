@@ -5,8 +5,6 @@
 - ${\color{lightblue}Thesis}$
 ```mermaid
 graph TD;
-    A-->B;
-    A-->C;
-    B-->D;
-    C-->D;
+    Main Repository-->Thesis;
+    A-->Data Analysis;
 ```
