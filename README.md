@@ -1,4 +1,4 @@
-<p style="text-align: center;">PhD Thesis</p>
+# PhD Thesis
 
 
 - Here comes the description.
