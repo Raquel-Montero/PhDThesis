@@ -1,8 +1,7 @@
 # PhD Thesis
 
+Here comes the information about the repository the thesis and the date of submission.
 
-- Here comes the description.
-- ${\color{lightblue}Thesis}$
 ```mermaid
 graph TD;
     A(Repository) -->B(Thesis);
