@@ -4,8 +4,10 @@
 - Here comes the description.
 - ${\color{lightblue}Thesis}$
 ```mermaid
+---
+caption: An example flowchart
+---
 graph TD;
- subgraph This is my caption
     A[Repository] -->B[Thesis];
     B[Thesis] -->B1[pdf];
     A[Repository]-->C[Data Analysis];
