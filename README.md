@@ -1,6 +1,7 @@
 # PhD Thesis
 
 Here comes the information about the repository the thesis and the date of submission.
+Structure of the Repository
 
 ```mermaid
 graph TD;
