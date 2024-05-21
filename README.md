@@ -15,5 +15,5 @@ graph TD;
     E[Chapter 5] --> E2[Julia Simulations];
     C[Data Analysis] --> F[Chapter 6];
     F[Chapter 6] --> F1[R Code];
-style B fill:#00758f
+style B fill:#c3d3d4
 ```
