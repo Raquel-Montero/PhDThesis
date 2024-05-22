@@ -1,4 +1,5 @@
 <h1 align="center">PhD Thesis</h2>
+<p align="center">Raquel Montero Estebaranz</p>
 
 <!-- TABLE OF CONTENTS -->
 <details>
