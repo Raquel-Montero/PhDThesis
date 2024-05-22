@@ -1,4 +1,4 @@
-<h1 align="center">PhD Thesis</h3>
+<h2 align="center">PhD Thesis</h2>
 
 ## About this repository
 
