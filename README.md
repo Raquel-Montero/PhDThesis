@@ -1,6 +1,6 @@
-<h3 align="center">Best-README-Template</h3>
+<h1 align="center">PhD Thesis</h3>
 
-# PhD Thesis
+## About this repository
 
 Here comes the information about the repository the thesis and the date of submission.
 Structure of the Repository
