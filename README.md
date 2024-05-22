@@ -1,3 +1,5 @@
+<h3 align="center">Best-README-Template</h3>
+
 # PhD Thesis
 
 Here comes the information about the repository the thesis and the date of submission.
