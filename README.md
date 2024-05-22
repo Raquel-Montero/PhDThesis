@@ -30,6 +30,6 @@ The Folder data analysis contains the data from the three core chapters of the c
 The materials in this thesis have greatly benefited from a number of free sofware resources, which I would like to acknowledge.
 
 - $\LaTeX$: for typesetting the thesis
-- ![R_logo](https://github.com/Raquel-Montero/PhDThesis/assets/115950103/d2c9b14f-b22e-42cc-bb00-8e9cf368dfc0)
+- ![R_logo](https://github.com/Raquel-Montero/PhDThesis/assets/115950103/d2c9b14f-b22e-42cc-bb00-8e9cf368dfc0 | width=100)
 R: for the statistical analysis
 - Krita: for drawings and paintings
