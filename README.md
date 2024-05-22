@@ -36,7 +36,7 @@ style B2 fill:#b2d8d8, stroke:#75b0b2
 
 The repository is divided into three main folders: 
 1. **Thesis**: contains the thesis itself.
-2. **Data**: contains the (annotated) data to study the diachronic behaviour of mood selection, information on the queries run to extract the data from the CDH corpus and the annotation guidelines that were followed.
+2. **Data**: contains information on the queries run to extract the data from the CDH corpus and the annotation guidelines that were followed.
 3. **Data Analysis**: R and Julia code used to analyze the data and run simulations.
 
 ### Corpora
