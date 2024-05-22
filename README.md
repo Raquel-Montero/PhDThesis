@@ -12,8 +12,7 @@ This repository contains my PhD Thesis, which was written between the years 2020
 graph TD;
     A(Repository) --> Q(Data);
     Q(Data) --> Q1(Corpus Queries);
-    Q(Data) --> Q2(Annotated Data);
-    Q(Data) --> Q3(Guidelines);
+    Q(Data) --> Q2(Guidelines);
     A(Repository)--> C(Data Analysis);
     C(Data Analysis) --> D(Chapter 4);
     D(Chapter 4) --> D1(R Code);
@@ -30,7 +29,6 @@ style A fill:#fecc91, stroke:#fdb35a
 style Q fill:#C1E1C1, stroke:#93C572
 style Q1 fill:#C1E1C1, stroke:#93C572
 style Q2 fill:#C1E1C1, stroke:#93C572
-style Q3 fill:#C1E1C1, stroke:#93C572
 style B fill:#b2d8d8, stroke:#75b0b2
 style B1 fill:#b2d8d8, stroke:#75b0b2
 style B2 fill:#b2d8d8, stroke:#75b0b2
