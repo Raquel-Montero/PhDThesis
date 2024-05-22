@@ -41,12 +41,18 @@ The repository is divided into three main folders:
 
 ### Corpora
  
--  *Corpus del Diccionario histórico de la lengua española*: most of the data used was extracted from the CDH. I would like to thank the creators for their work and for making this resource freely available for research.
+-  *Corpus del Diccionario histórico de la lengua española*: most of the data used was extracted from the CDH.
   
     Real Academia Española (2013): *Corpus del Diccionario histórico de la lengua española (CDH)* [en linea]. <https://apps.rae.es/CNDHE>
+   
+- *Corpus de Referencia del Español Actual*: some linguistic examples were also extracted from the CREA.
+  
+    Real Academia Española (2008): *Banco de datos (CREA). Corpus de referencia del español actual.* [en línea] <http://www.rae.es>
+
+ I would like to thank the creators for their work and for making this resource freely available for research.
 
 ### Other Resources
-The materials in this thesis have greatly benefited from a number of free sofware resources, which I would also like to acknowledge.
+The materials in this thesis have greatly benefited from a number of free sofware resources, which I would like to acknowledge.
 
 - <img src="https://github.com/Raquel-Montero/PhDThesis/assets/115950103/d85b05d0-d867-4008-b3ae-552aa00ea72f"  width="30" height="20">  $\LaTeX$: for typesetting the thesis.
 -  <img src="https://github.com/Raquel-Montero/PhDThesis/assets/115950103/d2c9b14f-b22e-42cc-bb00-8e9cf368dfc0"  width="20" height="20"> R: for the statistical analysis.
