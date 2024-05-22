@@ -1,0 +1,745 @@
+
+---
+title: "Chapter 4. The effect of verb class"
+author: "Raquel Montero Estebaranz"
+date: "05.22.2024"
+output: 
+  html_document: 
+      toc: true
+      toc_float: true
+      theme: cosmo
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.align="center", warning = FALSE, message = FALSE)
+
+```
+```{css, echo=FALSE}
+h1,h4 {
+  text-align: center;
+}
+p {
+  text-align: justify; 
+}
+```
+
+## 1. Introduction
+
+This file shows the code used to analyse the data for Chapter 4 of the thesis "Mood alternations: a synchronic and diachronic study of negated complement clauses". The data as well as the annotation guidelines can be found at: https://github.com/Raquel-Montero
+
+
+The following are the Packages that will be used:
+```{r}
+library(readr)
+library(carData)      # for cat package
+library(car)          # Anova function
+library(dplyr)        # Operations
+library(plyr)         # for ddply 
+library(ggplot2)      # to use ggplot
+library(sjPlot)       # to change the font
+library(Matrix)       # for lme4 package
+library(lme4)         # to calculate lmer models
+library(lmerTest)     # for the p values
+library(mgcv)         # for Gam model
+library(itsadug)      # for Gam model
+library(tidygam)      # for Gam plotting
+library(tidymv)       # For Gam plotting: https://www.rdocumentation.org/packages/tidymv/versions/3.4.2
+library(ggpubr)
+library(LaplacesDemon) #for the function invlogit
+library(ggpubr)
+library(functional)
+library(scales)
+```
+
+
+## 2. General Development: Graphs
+
+Loading the Data: 
+
+```{r}
+data <- read_csv("DiachronyAllVerbs.csv", 
+                  show_col_types = FALSE,
+                  locale = locale(encoding =  "ISO-8859-1"))
+
+```
+
+Final Data that will be used for analysis:
+
+```{r}
+clean.data <- subset(data, Mverbtype =="ind" & # the matrix verb is in indicative
+                     Mverbclass!="Na"& # excludes any data that is not one of the four verbs
+                     Emood !="Na" & # no embedded verb
+                     Emood !="NA" &
+                     Emood !="inf" & # embedded verb in infinitive
+                     MClauseType=="noninterrogative" & # only takes into account non-interrogative clauses
+                     EClauseType=="unambiguous" # exclude ambigous sentences
+                   )
+
+# Changing the indicative to 1 and subjunctive to 0:
+clean.data$Emood2 <- ifelse(clean.data$Emood == "subj", 0, 1)
+
+# Converting the mood into a numeric value:
+clean.data$Emood2 <- as.numeric(as.character(clean.data$Emood2))
+
+#changing names of values so that they are clearer: 
+clean.data$Mverbclass2 <- ifelse(clean.data$Mverbclass == "factive", "semi-factive", "non-factive")
+clean.data$Construction <- ifelse(clean.data$Construction == "1st present", "1st present (FP)", "other (O)")
+
+```
+
+Data for plotting: 
+
+```{r}
+# Creates new data-frame with the means of embedded mood per period, verb class/verb and construction:
+
+plot.data.verbtype <- ddply(clean.data, # data frame
+                          .(Period, Construction,Mverbclass2), # variables to calculate the mean
+                          summarize, #summary
+                          mean = mean(as.numeric(as.character(Emood2)), na.rm = T), # mean
+                          n = sum(!is.na(as.numeric(as.character(Emood2)))) # number of tokens
+                          )
+plot.data.verbtype
+
+plot.data.verbs <- ddply(clean.data, 
+                        .(Period, Construction,Mverbl), 
+                        summarize, 
+                        mean = mean(as.numeric(as.character(Emood2)), na.rm = T),
+                        n = sum(!is.na(as.numeric(as.character(Emood2))))
+                        )
+plot.data.verbs
+```
+
+Plotting the results:
+
+```{r}
+#Font and theme for the graph:
+windowsFonts("Garamond" = windowsFont("Garamond"))
+
+set_theme( base = theme_bw(base_family = 'Garamond'),
+  title.size = 1.4,
+  axis.title.size = 1.4,
+  axis.textsize = 1.1,
+  legend.size = 1,
+  legend.title.size = 1,
+  geom.label.size = 3
+)
+
+# Plot 1: Mood selection of different verb classes
+
+plot.data.verbtype$Period <- as.factor(plot.data.verbtype$Period) # Period as factor
+
+verbtype.diachrony <- ggplot()+  
+                geom_point(data=plot.data.verbtype, #main data
+                           aes(Period, # x-axis
+                               mean, # y-axis
+                               size = n, # size of the dots
+                               color=Construction #colors
+                               )
+                           )+  
+                facet_wrap(~factor(Mverbclass2, # divide into facets
+                                   levels = c('semi-factive', 'non-factive') # order of the facets
+                                   )
+                           )+ 
+                scale_size_area(max_size=13)+  # controls the maximum side of the points.
+                labs(title="Proportion Mood: not V(ind) that p(ind/subj)",  # axis labels
+                      x = " ", 
+                       y="Mood Proportion (1=ind,0=subj)")+
+                scale_color_manual(values=c("black", "#5F9EA0" ))+ # color values
+                labs(size="size", colour="Construction")+ # labels legends
+                ylim(0,1) # minimum/maximum values of the y-axis
+  
+verbtype.diachrony
+
+# Plot 2: mood selection after each individual verb
+
+plot.data.verbs$Period <- as.factor(plot.data.verbs$Period) # Period as factor
+
+verbs.diachrony <- ggplot()+  
+              geom_point(data=plot.data.verbs, #main data
+                         aes(Period, # x-axis
+                             mean, # y-axis
+                             size = n, # size of the dots
+                             color=Construction) # colors
+                         )+
+             facet_wrap(~factor(Mverbl, #divide into facets
+                                levels=c('saber (know)', 'creer (believe)', 'ver (see)', 'decir (say)')), #order facets
+                                ncol=2 # number of columns
+                        )+ 
+              scale_size_area(max_size=13)+ # maximum size of the dots
+              labs(title="Proportion Mood: not V(ind) that p(ind/subj)", #labels 
+                    x = " ", 
+                    y="Mood Proportion (1=ind,0=subj)")+
+             scale_color_manual(values=c("black", "#5F9EA0" ))+ # colors plot
+            ylim(0,1)+ # minimum/maximum value of the y-axis
+            labs(size="size", colour="Construction")
+verbs.diachrony
+```
+```{r}
+#Saving the plots:
+ggsave(verbtype.diachrony, file="verb-classes-diachrony.png", width = 8, height= 4)
+ggsave(verbs.diachrony, file="verbs-diachrony.png", width = 8, height= 6)
+```
+
+
+
+## 3. Statistical Analysis
+```{r}
+# changing verbclass and construction to factor:
+clean.data$Mverbclass <- as.factor(clean.data$Mverbclass)#
+clean.data$Construction <- as.factor(clean.data$Construction)
+
+# change year into a numeric variable:
+clean.data$Year2 <- as.numeric(clean.data$Year2)
+
+# create a new column with Class and Construction as one combined factor: (for the GAM model)
+clean.data <- mutate(clean.data, classContruction = interaction(Mverbclass, Construction))
+
+# use a contrast treatment and order the variable:
+clean.data$classContruction <- as.ordered(clean.data$classContruction)
+contrasts(clean.data$classContruction) <- "contr.treatment"
+
+```
+
+
+
+### 3.1. GAM: Exploring the verb class effect
+
+
+#### Gam models
+```{r}
+# No effect of Verb class:
+model <- bam(Emood2 ~ Construction+
+                     s(Year2)+
+                    s(Year2,by=Construction),
+                   method = "REML", 
+                  family="binomial",
+                   data = clean.data)
+
+# Main efect of verb class but no interaction with it: --> 
+model2 <- bam(Emood2 ~ Construction+Mverbclass+
+                     s(Year2)+
+                     s(Year2, by=Construction),
+                   method = "REML", 
+                  family="binomial",
+                   data = clean.data)
+
+
+# Three way interaction:
+model3 <- bam(Emood2 ~ classContruction+
+                     s(Year2)+
+                     s(Year2, by=classContruction),
+                   method = "REML", 
+                  family="binomial",
+                   data = clean.data)
+
+
+```
+
+#### Comparision of the models
+
+```{r}
+# Comparing the models: 
+AIC(model2, model) # no effect of verb class vs. main effect of verb class
+AIC(model3, model2) # main effect of verb class vs. three way interaction
+
+```
+
+
+
+#### Gam final model
+
+```{r}
+
+final.model <- bam(Emood2 ~ classContruction+
+                     s(Year2)+
+                     s(Year2, by=classContruction),
+                   method = "REML", 
+                  family="binomial",
+                   data = clean.data)
+
+summary(final.model)
+
+```
+Checking the model results: 
+```{r}
+gam.check(final.model)
+k.check(final.model)
+```
+
+
+
+#### Ploting the GAM
+```{r}
+
+plot.binomial <- plot_smooths(model = final.model, 
+             series = Year2,
+             comparison = Construction, 
+             facet_terms = Mverbclass2, 
+             split = list(classContruction = c( "Mverbclass2","Construction")), 
+             transform = invlogit # the model log transforms the data, to plot the odds ratio we use the inverse f
+             ) +
+  scale_color_manual(values = c("black", "#5F9EA0"), name = "Construction") + 
+  scale_fill_manual(values = c("gray80", "#5F9EA0"), name = "Construction") +
+  scale_linetype_manual(values = c("solid", "dotted"), name = "Construction") +
+  theme_classic() + 
+  ylab("Predicted Proportion Mood") + 
+  xlab("Years")
+
+plot.binomial
+
+```
+```{r}
+#saving the plot:
+ggsave(plot.binomial, file="plot-gam-binomial.png", width = 8, height = 4)
+```
+
+
+#### Difference curve
+
+```{r}
+
+# Plotting the difference curve: 
+
+combined <- ggarrange(plot_difference(final.model, Year2, 
+                          difference= list(classContruction = 
+                                             c("factive.other (O)",
+                                               "factive.1st present (FP)"))) + 
+            scale_y_continuous(limits=c(-2, 7), breaks = seq(-1, 7, by = 1))+
+            ylab("Difference FP and O") + 
+            xlab("Years") + 
+            theme_classic() + 
+            ggtitle("Construction O minus Construction FP | semi-factive verbs"),
+            plot_difference(final.model, Year2, 
+                          list(classContruction = c("non-factive.other (O)",
+                                                    "non-factive.1st present (FP)"))) + 
+             scale_y_continuous(limits=c(-2, 7),breaks = seq(-1, 7, by = 1))+
+            ylab("Difference FP and O") + 
+            xlab("Years") + 
+            theme_classic() + 
+            ggtitle("Construction O minus Construction FP | non-factive verbs"))
+combined
+            
+```
+
+```{r}
+ggsave(combined, file="combined.png", width = 11, height = 4)
+```
+
+ Plotting the Difference Curve with a change in the scale
+
+```{r}
+#Predictions of the model:
+preds <- get_gam_predictions(final.model, 
+                             Year2, 
+                             split = 
+                  list(classContruction = c("Verb Class",
+                                            "Constrcution")))
+
+# Backtransforming the values:
+preds$Emood2<-invlogit(preds$Emood2)
+
+# Change into a data-frame:
+my_df <- as.data.frame(preds)
+
+# diff: 2-1 by Year2
+my_df1 <- subset(my_df, .idx=="1")
+my_df2 <- subset(my_df, .idx=="2")
+differenceV1 <- (my_df2$Emood2 - my_df1$Emood2)
+
+# Diff: 4-3 by Year2
+my_df3 <- subset(my_df, .idx=="3")
+my_df4 <- subset(my_df, .idx=="4")
+differenceV2 <- (my_df4$Emood2 - my_df3$Emood2)
+
+# Years
+Years <- my_df3$Year2
+
+# V1 significance level: 1360 onwards significant
+significanceV1 <- c(FALSE,FALSE,FALSE,FALSE,FALSE,
+                    TRUE, TRUE, TRUE, TRUE, TRUE,
+                    TRUE, TRUE, TRUE, TRUE, TRUE,
+                    TRUE, TRUE, TRUE, TRUE, TRUE,
+                    TRUE, TRUE, TRUE, TRUE, TRUE)
+
+# V2 significance level: 
+significanceV2 <- c(FALSE,FALSE,FALSE,
+                    TRUE, TRUE, TRUE, TRUE,
+                    TRUE, TRUE, TRUE, 
+                    FALSE,FALSE,FALSE,
+                    TRUE, TRUE, TRUE, TRUE, TRUE,
+                    TRUE, TRUE, TRUE, TRUE, TRUE,
+                    TRUE,TRUE)
+
+# combining all the above
+newdata <- cbind(Years,differenceV1,significanceV1,differenceV2,significanceV2)
+newdata <- as.data.frame(newdata) #transform into data frame
+
+
+#we can now plot these differences:
+#Plot 1:
+ PlotV1 <- ggplot(newdata, aes(Years, differenceV1))+
+   geom_line()+
+   geom_hline(aes(yintercept = 0), colour = "black") +
+  geom_rect(aes(xmin = 1360, xmax = 2000, ymin = -Inf, ymax = Inf),
+                   fill = "red", alpha = 0.005)+
+   ylim(-0.2,1)+
+   ylab("Difference: O-FP")+
+   ggtitle("Construction O minus Construction FP|semi-factive verbs")+
+   theme_bw() + 
+   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+
+ # Plot 2:
+ PlotV2 <- ggplot(newdata, aes(Years, differenceV2))+
+   geom_line()+
+    geom_hline(aes(yintercept = 0), colour = "black") +
+   geom_rect(aes(xmin = 1256, xmax = 1512, ymin = -Inf, ymax = Inf),
+                   fill = "red", alpha = 0.005)+
+   geom_rect(aes(xmin = 1625, xmax = 2000, ymin = -Inf, ymax = Inf),
+                   fill = "red", alpha = 0.005)+
+   ylim(-0.2,1)+
+   ylab("Difference: O-FP")+
+   ggtitle("Construction O minus Construction FP|non-factive verbs")+
+   theme_bw() + 
+   theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
+ 
+ #combining the plots
+ combinedraw <- ggarrange(PlotV1,PlotV2)
+ combinedraw
+
+
+```
+```{r}
+ggsave(combinedraw,file="combined-difference-curve.png", width = 11, height = 4)
+```
+
+
+### 3.2. GAM: exploring the effect of individual predicates
+
+
+```{r}
+# Create a new column with Class and Construction as one combined factors:
+clean.data <- mutate(clean.data, PredicateConstruction = interaction(Mverbl, Construction))
+
+#use a contrast treatment and order the variable:
+clean.data$PredicateContruction  <- as.ordered(clean.data$PredicateConstruction )
+contrasts(clean.data$PredicateConstruction ) <- "contr.treatment"
+
+model.predicates <- bam(Emood2 ~ PredicateConstruction  +
+                     s(Year2) +
+                     s(Year2, by = PredicateConstruction),
+                   method = "REML", 
+                   family = "binomial",
+                   data = clean.data)
+
+#comparing the models: 
+AIC(final.model,model.predicates)
+
+
+```
+The model in which individual predicates rather than verb class is significantly better. It must be said that the data is considerably less for each individual predicate. 
+The work leaves open the possibility of exploring theoretical specific difference across verbs within the same verbal class.
+
+## 4. Construction FP: semi-factive
+
+Data for first person construction semi-factive verbs:
+```{r}
+# Subseting the data:
+
+clean.data.factive <- subset(clean.data, 
+                     Mverbclass=="factive"& # Only factive verbs
+                     Construction=="1st present (FP)"
+                   )
+
+plot.data.verbs.factive <- ddply(clean.data.factive, .(Period,Mverbl), 
+                        summarize, 
+                        mean = mean(as.numeric(as.character(Emood2)), na.rm = T),
+                        n = sum(!is.na(as.numeric(as.character(Emood2))))
+                        )
+# know:
+clean.data.know <- subset(clean.data, 
+                    Mverbl=="saber (know)"& # Only the verb know
+                    Construction=="1st present (FP)"
+                   )
+# see: 
+clean.data.see <- subset(clean.data, 
+                    Mverbl=="ver (see)"& # Only the verb see
+                    Construction=="1st present (FP)"
+                   )
+
+```
+#### First attempt: fitting all data
+
+```{r}
+# Logarithm:
+logarithm <- function(Period,k,s)(1/(1+exp(s*(Period-k))))
+
+# model:
+model <- nls(Emood2 ~ logarithm(Period,k,s), data=clean.data.know, start=list(s=0.024, k=1439))
+summary(model) 
+
+#values of the model: 0.019+-0.003 [0.22-0.016], k=1428+-12 [1440-] 
+
+modelsee <- nls(Emood2 ~ logarithm(Period,k,s), data=clean.data.see, start=list(s=0.008, k=1505))
+summary(modelsee) 
+
+#values of the model: s=0.008+-0.002[0.01-0.006] k=1506.+-23
+
+```
+```{r}
+clean.data.know$Period<-as.numeric(clean.data.know$Period)
+plot.data.verbs.factive$Period <-as.numeric(plot.data.verbs.factive$Period)
+
+# Functions for plotting
+logsaber <-function(x) {1/(1+exp(0.019*(x-1428)))}
+logsaberupper <-function(x) {1/(1+exp(0.025*(x-1452)))}
+logsaberlower <-function(x) {1/(1+exp(0.013*(x-1404)))}
+
+
+logver <-function(x) {1/(1+exp(0.008*(x-1506)))}
+logverupper <-function(x) {1/(1+exp(0.012*(x-1552)))}
+logverlower <-function(x) {1/(1+exp(0.004*(x-1460)))}
+
+#Plotting parameters: 
+
+x <- seq(1200,1900,10)
+y1ver <- logverlower(x)
+y2ver <- logverupper(x)
+
+y1know <-logsaberlower(x)
+y2know <- logsaberupper(x)
+
+# Plot:
+
+mood.verbs.factive <- ggplot()+  
+              geom_point(data=plot.data.verbs.factive,
+                         aes(Period, mean,size = n, color=Mverbl))+scale_size_area(max_size=13)+ 
+              labs(title="Proportion Mood: I don't V that p + Fitted logistic(1200-1900)", 
+                    x = " ", 
+                    y="Mood Proportion (1=ind,0=subj)")+
+             scale_color_manual(values=c("#E66100", "#5D3A9B" ))+
+             geom_function(fun=logsaber, color = "orange")+
+              geom_function(fun=logver, color = "purple")+
+            ylim(0,1)+
+            labs(size="size", colour="Verb")+
+            geom_segment(aes(x = 1428, y = 0.50, xend = 1520, yend = 0.50))+
+            geom_segment(aes(x=1428, y=0.45, xend = 1428, yend=0.55))+
+            geom_segment(aes(x=1520, y=0.45, xend = 1520, yend=0.55))+
+            geom_segment(aes(x = 1520, y = 0.50, xend = 1539, yend = 0.50), linetype="dotted")+
+            geom_segment(aes(x=1539, y=0.45, xend = 1539, yend=0.55),linetype="dotted")+
+            geom_polygon(aes(c(x,rev(x)),c(y2ver,rev(y1ver))),fill="purple",alpha=0.1)+
+            geom_polygon(aes(c(x,rev(x)),c(y2know,rev(y1know))),fill="orange",alpha=0.1)
+mood.verbs.factive
+```
+
+
+#### Second Attempt: fitting only the drop 
+
+```{r}
+#Fit the data from 1400 onwards only:
+
+clean.data.know.1400 <- subset(clean.data, 
+                    Mverbl=="saber (know)"& # Only know
+                    Construction=="1st present (FP)"& # only first person
+                      Period!="1200"& # data from 1400 onwards
+                    Period!="1300"
+                   )
+
+modelknow1400 <- nls(Emood2 ~ logarithm(Period,k,s), data=clean.data.know.1400, start=list(s=0.024, k=1439))
+summary(modelknow1400)
+
+clean.data.see.1500<- subset(clean.data, 
+                    Mverbl=="ver (see)"& # Only the verb see
+                    Construction=="1st present (FP)"& # only first person constructions
+                    Period!="1200"& # data from 1500 onwards.
+                    Period!="1300"&
+                    Period!="1400"
+                   )
+
+modelsee <- nls(Emood2 ~ logarithm(Period,k,s), data=clean.data.see.1500, start=list(s=0.008, k=1505))
+summary(modelsee)
+```
+
+Plotting the results
+
+```{r}
+logsaber1500 <-function(x) {1/(1+exp(0.023*(x-1438)))}
+logsaber1500upper <-function(x) {1/(1+exp(0.027*(x-1447)))}
+logsaber1500lower <-function(x) {1/(1+exp(0.019*(x-1429)))}
+
+logver1500 <-function(x) {1/(1+exp(0.012*(x-1539)))}
+logver1500lower <-function(x) {1/(1+exp(0.009*(x-1523)))}
+logver1500upper <-function(x) {1/(1+exp(0.015*(x-1555)))}
+
+#Calculating the error upper bouns: 0.019=> 92 years(1429+117=1546), 0.023=>76 years(1438+76=1514); 
+
+x <- seq(1200,1900,10)
+y1ver1500 <- logver1500lower(x)
+y2ver1500 <- logver1500upper(x)
+
+y1know1400 <-logsaber1500lower(x)
+y2know1400 <- logsaber1500upper(x)
+
+#delete points not used
+plot.data.verbs.factive2 <- subset(plot.data.verbs.factive, Period!="1200" &
+                                     Period!="1300"
+                                   )
+plot.data.verbs.factive3 <- filter(plot.data.verbs.factive2, (Period!="1400"| Mverbl=="saber (know)"))
+
+# Plotting the graph:
+
+moodverbs.factive1400 <- ggplot()+  
+              geom_point(data=plot.data.verbs.factive3,
+                         aes(Period, mean,size = n, color=Mverbl))+scale_size_area(max_size=13)+ 
+              labs(title="Proportion Mood: I don't V that p + Fitted logistic (1400/1500-1900)", 
+                    x = " ", 
+                    y="Mood Proportion (1=ind,0=subj)")+
+             scale_color_manual(values=c("#E66100", "#5D3A9B" ))+
+              geom_function(fun=logsaber1500, color = "orange")+
+              #geom_function(fun=logsaber1500upper, color = "orange", linetype="dotted")+
+              #geom_function(fun=logsaber1500lower, color = "orange", linetype="dotted")+
+              geom_function(fun=logver1500, color = "purple")+
+              #geom_function(fun=logver1500lower, color = "purple", linetype="dotted")+
+              #geom_function(fun=logver1500upper, color = "purple", linetype="dotted")+
+              #stat_function(fun=logver1500upper, geom="area", fill="#84CA72", alpha=0.2)+
+            ylim(0,1)+
+            labs(size="size", colour="Verb")+
+            geom_segment(aes(x = 1438, y = 0.50, xend = 1514, yend = 0.50))+
+            geom_segment(aes(x=1438, y=0.45, xend = 1438, yend=0.55))+
+            geom_segment(aes(x=1514, y=0.45, xend = 1514, yend=0.55))+
+            geom_segment(aes(x = 1514, y = 0.50, xend = 1546, yend = 0.50),color="black",linetype="dotted")+
+            geom_segment(aes(x=1546, y=0.45, xend = 1546, yend=0.55),linetype="dotted")+
+            geom_polygon(aes(c(x,rev(x)),c(y2ver1500,rev(y1ver1500))),fill="purple",alpha=0.1)+
+  geom_polygon(aes(c(x,rev(x)),c(y2know1400,rev(y1know1400))),fill="orange",alpha=0.1)
+moodverbs.factive1400
+
+```
+#### Combining the two attempts
+
+```{r}
+combined.models <- ggarrange(mood.verbs.factive,moodverbs.factive1400)
+```
+
+```{r}
+ggsave(combined.models, file="fitted-loss-1stperson2.png",width = 13,height = 4)
+```
+
+## Appendix I: -ra subjunctive forms
+
+```{r}
+ex.datarase <- subset(data, Mverbtype =="ind" & 
+                     Emood !="Na" & 
+                     Emood !="NA" &
+                     Emood !="inf" &
+                     Emoodrase !="ra" & # excludes the -ra forms 
+                     MClauseType=="noninterrogative" &
+                     EClauseType=="unambiguous"
+                   )
+
+# Changing the indicative to 1 and subjunctive to 0:
+ex.datarase$Emood2 <- ifelse(ex.datarase$Emood == "subj", 0, 1)
+
+#changing name factive and non-factive
+ex.datarase$Mverbclass2 <- ifelse(ex.datarase$Mverbclass == "factive", "semi-factive", "non-factive")
+ex.datarase$Construction <- ifelse(ex.datarase$Construction == "1st present", "1st present (FP): without embedded -ra", "other (O): without embedded -ra")
+
+# Converting the into a numeric value:
+ex.datarase$Emood2 <- as.numeric(as.character(ex.datarase$Emood2))
+ex.datarase$Period <- as.factor(as.character(ex.datarase$Period))
+
+# new dataframe with the means of embedded mood per period, verb and type of matrix subject(persona)
+plot.datafactiverase <- ddply(ex.datarase, .(Period, Construction,Mverbclass2
+),summarize, mean = mean(as.numeric(as.character(Emood2)), na.rm = T), n = sum(!is.na(as.numeric(as.character(Emood2)))))
+
+
+# original data: 
+clean.data$Mverbclass2 <- ifelse(clean.data$Mverbclass == "factive", "semi-factive", "non-factive")
+plot.datafactive <- ddply(clean.data, .(Period, Construction,Mverbclass2),
+                          summarize, 
+                          mean = mean(as.numeric(as.character(Emood2)), na.rm = T),
+                          n = sum(!is.na(as.numeric(as.character(Emood2))))
+                          )
+plot.datafactive$Period <- as.factor(plot.datafactive$Period)
+
+
+moodfactiverase <- ggplot()+  
+  geom_point(data=plot.datafactiverase, aes(Period, mean, color=Construction), alpha=0.6, size=4)+
+  geom_point(data=plot.datafactive, aes(Period, mean, color=Construction), alpha=0.6, size=4)+
+  facet_wrap(~factor(Mverbclass2, c("semi-factive","non-factive")), ncol=2)+scale_size_area(max_size=13)+ 
+  labs(title="Proportion Mood (with/without -ra forms): not V(ind) that p(ind/subj).", 
+       x = " ", 
+       y="Mood Proportion (1=ind,0=subj)")+
+  scale_color_manual(values=c("black","gray", "#5F9EA0", "#3589de"))+
+  ylim(0,1)+
+  labs(colour="Construction")
+  
+
+moodfactiverase
+
+```
+```{r}
+ggsave(moodfactiverase, file="diachrony-verb-classes-rase2.png", width = 11, height = 4)
+```
+
+## Appendix II: ambiguous sentences
+```{r}
+ex.data.ambiguous <- subset(data, Mverbtype =="ind" & 
+                     Emood !="Na" & 
+                     Emood !="NA" &
+                     Emood !="inf" &
+                     MClauseType=="noninterrogative" 
+                   )
+
+# Changing the indicative to 1 and subjunctive to 0:
+ex.data.ambiguous$Emood2 <- ifelse(ex.data.ambiguous$Emood == "subj", 0, 1)
+
+#changing name factive and non-factive
+ex.data.ambiguous$Mverbclass2 <- ifelse(ex.data.ambiguous$Mverbclass == "factive", "semi-factive", "non-factive")
+ex.data.ambiguous$Construction <- ifelse(ex.data.ambiguous$Construction == "1st present", "1st present (FP): with ambiguous sentences", "other (O): with ambiguous sentences")
+
+# Converting the into a numeric value:
+ex.data.ambiguous$Emood2 <- as.numeric(as.character(ex.data.ambiguous$Emood2))
+ex.data.ambiguous$Period <- as.factor(as.character(ex.data.ambiguous$Period))
+
+# new dataframe with the means of embedded mood per period, verb and type of matrix subject(persona)
+plot.datafactive.ambiguous <- ddply(ex.data.ambiguous, .(Period, Construction,Mverbclass2
+),summarize, mean = mean(as.numeric(as.character(Emood2)), na.rm = T), n = sum(!is.na(as.numeric(as.character(Emood2)))))
+
+```
+
+
+```{r}
+moodfactiveambiguous <- ggplot()+  
+  geom_point(data=plot.datafactive.ambiguous, aes(Period, mean, color=Construction), alpha=0.6, size=4)+
+  geom_point(data=plot.datafactive, aes(Period, mean, color=Construction), alpha=0.6, size=4)+
+  facet_wrap(~factor(Mverbclass2, c("semi-factive","non-factive")), ncol=2)+scale_size_area(max_size=13)+ 
+  labs(title="Proportion Mood (with/without ambiguous sentences): not V(ind) that p(ind/subj).", 
+       x = " ", 
+       y="Mood Proportion (1=ind,0=subj)")+
+  scale_color_manual(values=c("black","gray", "#5F9EA0", "#3589de"))+
+  ylim(0,1)+
+  labs(colour="Construction")
+  
+moodfactiveambiguous
+```
+```{r}
+ggsave(moodfactiveambiguous, file="diachrony-verb-classes-ambiguous2.png", width = 11, height = 4)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
