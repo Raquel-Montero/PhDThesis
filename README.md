@@ -10,9 +10,6 @@ This repository contains my PhD Thesis, which was written between the years 2020
 
 ```mermaid
 graph TD;
-    A(Repository) --> B(Thesis);
-    B(Thesis) --> B1(pdf);
-    B(Thesis) --> B2(Latex Code);
     A(Repository) --> Q(Data);
     Q(Data) --> Q1(Corpus Queries);
     Q(Data) --> Q2(Annotated Data);
@@ -25,6 +22,9 @@ graph TD;
     E(Chapter 5) --> E2(Julia Simulations);
     C(Data Analysis) --> F(Chapter 6);
     F(Chapter 6) --> F1(R Code);
+    A(Repository) --> B(Thesis);
+    B(Thesis) --> B1(pdf);
+    B(Thesis) --> B2(Latex Code);
 
 style A fill:#fecc91, stroke:#fdb35a
 style Q fill:#C1E1C1, stroke:#93C572
