@@ -1,5 +1,5 @@
 <h1 align="center">PhD Thesis</h2>
-<p align="center">*Raquel Montero Estebaranz*</p>
+<p align="center"><em>Raquel Montero Estebaranz</em></p>
 
 
 ### About this repository
