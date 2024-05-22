@@ -1,6 +1,6 @@
-<h2 align="center">PhD Thesis</h2>
+<h1 align="center">PhD Thesis</h2>
 
-## About this repository
+### About this repository
 
 Here comes the information about the repository the thesis and the date of submission.
 Structure of the Repository
