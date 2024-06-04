@@ -11,8 +11,6 @@ This repository contains my PhD Thesis, which was written between the years 2020
 ```mermaid
 graph TD;
     A(Repository) --> Q(Data);
-    Q(Data) --> Q1(Corpus Queries);
-    Q(Data) --> Q2(Data);
     A(Repository)--> C(Data Analysis);
     C(Data Analysis) --> D(Chapter 4);
     D(Chapter 4) --> D1(R Code);
