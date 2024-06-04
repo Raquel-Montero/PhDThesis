@@ -4,7 +4,7 @@
 
 ### About this repository
 
-This repository contains my PhD Thesis, which was written between the years 2020-2024 at the University of Konstanz under the supervision of George Walkden and Maribel Romero (mentor: Henri Kauhanen), as well as the data and code I used.  
+This repository contains my PhD Thesis, which was written between the years 2020-2024 at the University of Konstanz under the supervision of George Walkden and Maribel Romero (mentor: Henri Kauhanen), as well as the data and code I used.  Any remaining errors are solely my own.
 
 #### Structure of the Repository
 
