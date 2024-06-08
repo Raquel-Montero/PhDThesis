@@ -54,3 +54,6 @@ The materials in this thesis have greatly benefited from a number of free sofwar
 - <img src="https://github.com/Raquel-Montero/PhDThesis/assets/115950103/d85b05d0-d867-4008-b3ae-552aa00ea72f"  width="30" height="20">  $\LaTeX$: for typesetting the thesis.
 -  <img src="https://github.com/Raquel-Montero/PhDThesis/assets/115950103/d2c9b14f-b22e-42cc-bb00-8e9cf368dfc0"  width="20" height="20"> R: for the statistical analysis.
 - <img src="https://github.com/Raquel-Montero/PhDThesis/assets/115950103/62fd1199-b53a-457b-a15a-ae20ef1d3b39"  width="20" height="20"> Krita: for the images/diagrams.
+
+## Acknowledgement
+This project has received funding from the European Research Council (ERC) under the European Union's Horizon 2020 research and innovation programme (grant agreement n° 851423).
